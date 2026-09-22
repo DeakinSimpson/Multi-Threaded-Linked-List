@@ -1,22 +1,25 @@
 
 #include <iostream>
+
 #include "LinkedList.h"
 
 int main()
 {
-    std::cout << "Hello World!" << std::endl;
+    LinkedList::LinkedList<int> list;
+    list.PushBack(1);
+    list.PushBack(2);
+    list.PushBack(3);
+    list.PushFront(0);
 
-    LinkedList::LinkedList<int> linked_list;
+    // Should print: 0 1 2 3
+    for (int v : list)
+        std::cout << v << ' ';
+    std::cout << '\n';
 
-    linked_list.PushFront(5);
-    linked_list.PushFront(6);
-    linked_list.PushFront(7);
-    linked_list.PushBack(3);
-
-    std::cout << linked_list.Front() << std::endl;
-    std::cout << linked_list.Back() << std::endl;
-    std::cout << linked_list.Empty() << std::endl;
-    std::cout << linked_list.Size() << std::endl;
+    // Sanity checks
+    std::cout << "distance: " << std::distance(list.begin(), list.end()) << '\n'; // 4
+    std::cout << "size:     " << list.Size() << '\n';                             // 4
+    std::cout << "empty:    " << std::boolalpha << list.Empty() << '\n';          // false
 
     return 0;
 }
