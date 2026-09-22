@@ -16,6 +16,7 @@ int main()
     std::cout << linked_list.Front() << std::endl;
     std::cout << linked_list.Back() << std::endl;
     std::cout << linked_list.Empty() << std::endl;
+    std::cout << linked_list.Size() << std::endl;
 
     return 0;
 }

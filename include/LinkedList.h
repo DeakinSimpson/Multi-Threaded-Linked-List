@@ -23,10 +23,17 @@ namespace LinkedList
     class LinkedList
     {
         Node<T>* head_;
+        size_t size_;
 
     public:
 
-        LinkedList() : head_(nullptr) {  }
+        LinkedList() : head_ { nullptr }, size_ { 0 } {  }
+
+        /**
+         *
+         * @return Number of elements in the list
+         */
+        size_t Size() const { return size_; }
 
         /**
          *
@@ -64,6 +71,8 @@ namespace LinkedList
 
             Node<T>* temp { new Node<T>(data, head_) };
             head_ = temp;
+
+            ++size_;
         }
 
         /**
@@ -74,6 +83,8 @@ namespace LinkedList
         {
             Node<T>* backNode { GetTailPointer() };
             backNode->next = new Node<T>(data);
+
+            ++size_;
         }
 
     private:
