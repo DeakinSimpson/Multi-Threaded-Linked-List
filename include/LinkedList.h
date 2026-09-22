@@ -34,13 +34,9 @@ namespace LinkedList
 
         int Back() const
         {
-            Node* cur { head_ };
-            while (cur->next)
-            {
-                cur = cur->next;
-            }
+            Node* backNode { GetBackNode() };
 
-            return cur->data;
+            return backNode->data;
         }
 
         void PushFront(const int data)
@@ -55,7 +51,18 @@ namespace LinkedList
             head_ = temp;
         }
 
+    private:
 
+        Node* GetBackNode() const
+        {
+            Node* cur { head_ };
+            while (cur->next)
+            {
+                cur = cur->next;
+            }
+
+            return cur;
+        }
 
     };
 }
