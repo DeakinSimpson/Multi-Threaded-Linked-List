@@ -6,61 +6,59 @@
 
 namespace LinkedList
 {
+    template <typename T>
     struct Node
     {
-        int data;
+        T data;
         Node* next;
 
-        /**
-         *
-         * @param data The integer that the node will contain
-         */
-        explicit Node(const int data) : data { data }, next { nullptr } {  }
-        explicit Node(const int data, Node* next)
+        explicit Node(const T data) : data { data }, next { nullptr } {  }
+        explicit Node(const T data, Node* next)
             : data { data }
             , next { next }
         {  }
     };
 
+    template <typename T>
     class LinkedList
     {
-        Node* head_;
+        Node<T>* head_;
 
     public:
 
         LinkedList() : head_(nullptr) {  }
 
-        int Front() const { return head_->data; }
+        T Front() const { return head_->data; }
 
-        int Back() const
+        T Back() const
         {
-            Node* backNode { GetBackNode() };
+            Node<T>* backNode { GetBackNode() };
             return backNode->data;
         }
 
-        void PushFront(const int data)
+        void PushFront(const T data)
         {
             // if the list is empty, initialise head with data
             if (!head_)
             {
-                head_ = new Node(data);
+                head_ = new Node<T>(data);
             }
 
-            Node* temp { new Node(data, head_) };
+            Node<T>* temp { new Node<T>(data, head_) };
             head_ = temp;
         }
 
-        void PushBack(const int data)
+        void PushBack(const T data)
         {
-            Node* backNode { GetBackNode() };
-            backNode->next = new Node(data);
+            Node<T>* backNode { GetBackNode() };
+            backNode->next = new Node<T>(data);
         }
 
     private:
 
-        Node* GetBackNode() const
+        Node<T>* GetBackNode() const
         {
-            Node* cur { head_ };
+            Node<T>* cur { head_ };
             while (cur->next)
             {
                 cur = cur->next;

@@ -6,7 +6,7 @@ int main()
 {
     std::cout << "Hello World!" << std::endl;
 
-    LinkedList::LinkedList linked_list;
+    LinkedList::LinkedList<int> linked_list;
 
     linked_list.PushFront(5);
     linked_list.PushFront(6);
