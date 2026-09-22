@@ -30,6 +30,12 @@ namespace LinkedList
 
         /**
          *
+         * @return True if list is empty, false otherwise
+         */
+        bool Empty() const { return head_; }
+
+        /**
+         *
          * @return The head of the list
          */
         T Front() const { return head_->data; }
