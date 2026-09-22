@@ -35,7 +35,6 @@ namespace LinkedList
         int Back() const
         {
             Node* backNode { GetBackNode() };
-
             return backNode->data;
         }
 
@@ -49,6 +48,12 @@ namespace LinkedList
 
             Node* temp { new Node(data, head_) };
             head_ = temp;
+        }
+
+        void PushBack(const int data)
+        {
+            Node* backNode { GetBackNode() };
+            backNode->next = new Node(data);
         }
 
     private:
