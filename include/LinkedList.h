@@ -28,14 +28,26 @@ namespace LinkedList
 
         LinkedList() : head_(nullptr) {  }
 
+        /**
+         *
+         * @return The head of the list
+         */
         T Front() const { return head_->data; }
 
+        /**
+         *
+         * @return The tail of the list
+         */
         T Back() const
         {
-            Node<T>* backNode { GetBackNode() };
+            Node<T>* backNode { GetTailPointer() };
             return backNode->data;
         }
 
+        /**
+         *
+         * @param data The value that will become the new head
+         */
         void PushFront(const T data)
         {
             // if the list is empty, initialise head with data
@@ -48,15 +60,22 @@ namespace LinkedList
             head_ = temp;
         }
 
+        /**
+         *
+         * @param data The value that will become the new tail
+         */
         void PushBack(const T data)
         {
-            Node<T>* backNode { GetBackNode() };
+            Node<T>* backNode { GetTailPointer() };
             backNode->next = new Node<T>(data);
         }
 
     private:
-
-        Node<T>* GetBackNode() const
+        /**
+         *
+         * @return Pointer to the tail node
+         */
+        Node<T>* GetTailPointer() const
         {
             Node<T>* cur { head_ };
             while (cur->next)
