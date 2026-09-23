@@ -12,14 +12,16 @@ int main()
     list.PushFront(0);
 
     // Should print: 0 1 2 3
-    for (int v : list)
+    for (const int v : list)
+    {
         std::cout << v << ' ';
+    }
     std::cout << '\n';
 
     // Sanity checks
-    std::cout << "distance: " << std::distance(list.begin(), list.end()) << '\n'; // 4
-    std::cout << "size:     " << list.Size() << '\n';                             // 4
-    std::cout << "empty:    " << std::boolalpha << list.Empty() << '\n';          // false
+    std::cout << "distance: " << std::distance(list.begin(), list.end()) << '\n';
+    std::cout << "size:     " << list.Size() << '\n';
+    std::cout << "empty:    " << std::boolalpha << list.Empty() << '\n';
 
     return 0;
 }
