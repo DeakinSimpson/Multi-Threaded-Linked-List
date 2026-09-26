@@ -96,6 +96,7 @@
                 for (const auto& l : lst)
                 {
                     PushBack(l);
+                    ++size_;
                 }
             }
 
@@ -137,6 +138,7 @@
                 if (!head_)
                 {
                     head_ = new Node<T>(data);
+                    ++size_;
                     return;
                 }
 
@@ -155,6 +157,7 @@
                 if (!head_)
                 {
                     head_ = new Node<T>(data);
+                    ++size_;
                     return;
                 }
 
