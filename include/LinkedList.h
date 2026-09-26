@@ -206,6 +206,22 @@
                 return Iterator(next);
             }
 
+            void Clear()
+            {
+                Node<T>* cur { head_ };
+
+
+                while (cur)
+                {
+                    auto next { cur->next };
+                    delete cur;
+                    cur = next;
+                }
+
+                head_ = nullptr;
+                size_ = 0;
+            }
+
         private:
             /**
              *

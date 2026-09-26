@@ -33,5 +33,10 @@ int main()
     std::cout << "size:     " << list.Size() << '\n';
     std::cout << "empty:    " << std::boolalpha << list.Empty() << '\n';
 
+    list.Clear();
+
+    std::cout << "size: " << list.Size() << std:: endl;
+
+
     return 0;
 }
