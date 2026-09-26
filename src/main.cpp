@@ -5,11 +5,7 @@
 
 int main()
 {
-    LinkedList::LinkedList<int> list;
-    list.PushBack(1);
-    list.PushBack(2);
-    list.PushBack(3);
-    list.PushFront(0);
+    LinkedList::LinkedList<int> list { 0, 1, 2, 3};
 
     // Should print: 0 1 2 3
     for (const int v : list)

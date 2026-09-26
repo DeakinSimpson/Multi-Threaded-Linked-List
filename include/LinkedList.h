@@ -89,6 +89,15 @@
 
             LinkedList() : head_ { nullptr }, size_ { 0 } {  }
 
+            LinkedList(std::initializer_list<T> lst)
+                : head_ { nullptr }, size_ { 0 }
+            {
+                for (const auto& l : lst)
+                {
+                    PushBack(l);
+                }
+            }
+
             /**
              *
              * @return Number of elements in the list
