@@ -6,7 +6,7 @@
 
 int main()
 {
-    LinkedList::LinkedList<int> list { 0, 1, 2, 3 };
+    MTList::MTList<int> list { 0, 1, 2, 3 };
 
     // Should print: 0 1 2 3
     for (auto& v : list)

@@ -4,7 +4,7 @@
 
     #pragma once
 
-    namespace LinkedList
+    namespace MTList
     {
         template <typename T>
         struct Node
@@ -20,7 +20,7 @@
         };
 
         template <typename T>
-        class LinkedList
+        class MTList
         {
             Node<T>* head_;
             size_t size_;
@@ -67,7 +67,7 @@
 
             private:
                 Node<T>* m_ptr;
-                friend class LinkedList;    // allows linked list to read m_ptr
+                friend class MTList;    // allows linked list to read m_ptr
             };
 
             /**
@@ -88,9 +88,9 @@
                 return Iterator(nullptr);
             }
 
-            LinkedList() : head_ { nullptr }, size_ { 0 } {  }
+            MTList() : head_ { nullptr }, size_ { 0 } {  }
 
-            LinkedList(std::initializer_list<T> lst)
+            MTList(std::initializer_list<T> lst)
                 : head_ { nullptr }, size_ { 0 }
             {
                 for (const auto& l : lst)
