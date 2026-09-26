@@ -67,6 +67,7 @@
 
             private:
                 Node<T>* m_ptr;
+                friend class LinkedList;    // allows linked list to read m_ptr
             };
 
             /**
@@ -161,6 +162,48 @@
                 backNode->next = new Node<T>(data);
 
                 ++size_;
+            }
+
+            /**
+             *
+             * @param it Iterator of the Node to be removed
+             * @return Iterator of the next Node in the linked list
+             */
+            Iterator Erase( const Iterator& it)
+            {
+                // get the pointer of the target
+                Node<T>* target { it.m_ptr };
+
+                // return nullptr (end) if invalid iterator
+                if (!target) { return end(); }
+
+                // if head skip prev updating as there is no prev
+                if (target == head_)
+                {
+                    head_ = head_->next;
+                } else
+                {
+                    Node<T>* prev { head_ };
+
+                    // prev is not at end and != to target, loop until at target
+                    while (prev && prev->next != target)
+                    {
+                        prev = prev->next;
+                    }
+
+                    // if prev == nullptr then not found
+                    if (!prev) { return end(); }
+
+                    // update prev->next to skip over target
+                    prev->next = target->next;
+                }
+
+                // get next valuie and delete the node
+                Node<T>* next { target->next };
+                delete target;
+                --size_;
+
+                return Iterator(next);
             }
 
         private:
