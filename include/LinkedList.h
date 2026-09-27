@@ -95,7 +95,7 @@
                 return Iterator(nullptr);
             }
 
-            MTList() : head_ { nullptr }, size_ { 0 } {  }
+            MTList() : head_ { new Node<T>() }, size_ { 0 } {  }
 
             MTList(std::initializer_list<T> lst)
                 : head_ { nullptr }, size_ { 0 }
@@ -103,9 +103,17 @@
                 for (const auto& l : lst)
                 {
                     PushBack(l);
-                    ++size_;
                 }
             }
+
+            ~MTList()
+            {
+                Clear();
+                delete head_;
+            }
+
+            MTList(const MTList&) = delete;
+            MTList& operator=(const MTList&) = delete;
 
             /**
              *
@@ -141,17 +149,7 @@
              */
             void PushFront(const T data)
             {
-                // if the list is empty, initialise head with data
-                if (!head_)
-                {
-                    head_ = new Node<T>(data);
-                    ++size_;
-                    return;
-                }
-
-                Node<T>* temp { new Node<T>(data, head_) };
-                head_ = temp;
-
+                head_->next = new Node<T>(data);
                 ++size_;
             }
 
@@ -161,16 +159,8 @@
              */
             void PushBack(const T data)
             {
-                if (!head_)
-                {
-                    head_ = new Node<T>(data);
-                    ++size_;
-                    return;
-                }
-
                 Node<T>* backNode { GetTailPointer() };
                 backNode->next = new Node<T>(data);
-
                 ++size_;
             }
 
@@ -218,7 +208,7 @@
 
              void Clear()
              {
-                 Node<T>* cur { head_ };
+                 Node<T>* cur { head_->next };
 
 
                  while (cur)
