@@ -30,7 +30,7 @@
         class MTList
         {
             Node<T>* head_;
-            size_t size_;
+            std::atomic<size_t> size_ { 0 };
 
         public:
             struct Iterator
@@ -119,7 +119,7 @@
              *
              * @return Number of elements in the list
              */
-            size_t Size() const { return size_; }
+            size_t size() const { return size_.load(std::memory_order_relaxed); }
 
             /**
              *
@@ -149,8 +149,9 @@
              */
             void PushFront(const T data)
             {
+                std::lock_guard<std::mutex> lock(head_->mtx);
                 head_->next = new Node<T>(data);
-                ++size_;
+                size_.fetch_add(1, std::memory_order_relaxed);
             }
 
             /**
@@ -160,8 +161,10 @@
             void PushBack(const T data)
             {
                 Node<T>* backNode { GetTailPointer() };
+
+                std::lock_guard<std::mutex> lock(backNode->mtx);
                 backNode->next = new Node<T>(data);
-                ++size_;
+                size_.fetch_add(1, std::memory_order_relaxed);
             }
 
              /**
@@ -201,7 +204,7 @@
                  // get next valuie and delete the node
                  Node<T>* next { target->next };
                  delete target;
-                 --size_;
+                 size_.fetch_sub(1, std::memory_order_relaxed);
 
                  return Iterator(next);
              }
@@ -219,7 +222,7 @@
                  }
 
                  head_ = nullptr;
-                 size_ = 0;
+                 size_.store(0, std::memory_order_relaxed);
             }
 
         private:
