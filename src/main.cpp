@@ -15,7 +15,7 @@ enum class PushType
 
 // adds count number of number to mtList
 void AddNumbersToList(
-    MTList::MTList<int>& mtList,
+    ThreadSafeList::ThreadSafeList<int>& mtList,
     int number,
     int count,
     PushType pt)
@@ -24,18 +24,18 @@ void AddNumbersToList(
     {
         if (pt == PushType::Back)
         {
-            mtList.PushBack(number);
+            mtList.push_back(number);
         } else if (pt == PushType::Front)
         {
-            mtList.PushFront((number));
+            mtList.push_front((number));
         } else
         {
             if (i % 2 == 0)
             {
-                mtList.PushBack(number);
+                mtList.push_back(number);
             } else
             {
-                mtList.PushFront(number);
+                mtList.push_front(number);
             }
         }
     }
@@ -43,7 +43,7 @@ void AddNumbersToList(
 
 int main()
 {
-    MTList::MTList<int> mtList;
+    ThreadSafeList::ThreadSafeList<int> mtList;
 
     std::thread t1(AddNumbersToList, std::ref(mtList), 1, 10000, PushType::Front);
     std::thread t2(AddNumbersToList, std::ref(mtList), 0, 10000, PushType::Front);

@@ -9,7 +9,7 @@
 
     #pragma once
 
-    namespace MTList
+    namespace ThreadSafeList
     {
         template <typename T>
         struct Node
@@ -27,7 +27,7 @@
         };
 
         template <typename T>
-        class MTList
+        class ThreadSafeList
         {
             Node<T>* head_;
             std::atomic<size_t> size_ { 0 };
@@ -74,7 +74,7 @@
 
             private:
                 Node<T>* m_ptr;
-                friend class MTList;    // allows linked list to read m_ptr
+                friend class ThreadSafeList;    // allows linked list to read m_ptr
             };
 
             /**
@@ -95,9 +95,9 @@
                 return Iterator(nullptr);
             }
 
-            MTList() : head_ { new Node<T>() }, size_ { 0 } {  }
+            ThreadSafeList() : head_ { new Node<T>() }, size_ { 0 } {  }
 
-            MTList(std::initializer_list<T> lst)
+            ThreadSafeList(std::initializer_list<T> lst)
                 : head_ { nullptr }, size_ { 0 }
             {
                 for (const auto& l : lst)
@@ -106,20 +106,23 @@
                 }
             }
 
-            ~MTList()
+            ~ThreadSafeList()
             {
-                Clear();
+                clear();
                 delete head_;
             }
 
-            MTList(const MTList&) = delete;
-            MTList& operator=(const MTList&) = delete;
+            ThreadSafeList(const ThreadSafeList&) = delete;
+            ThreadSafeList& operator=(const ThreadSafeList&) = delete;
 
             /**
              *
              * @return Number of elements in the list
              */
-            size_t size() const { return size_.load(std::memory_order_relaxed); }
+            size_t size() const
+            {
+                return size_.load(std::memory_order_relaxed);
+            }
 
             /**
              *
@@ -131,15 +134,15 @@
              *
              * @return The head of the list
              */
-            T Front() const { return head_->data; }
+            T front() const { return head_->data; }
 
             /**
              *
              * @return The tail of the list
              */
-            T Back() const
+            T back() const
             {
-                Node<T>* backNode { GetTailPointer() };
+                Node<T>* backNode { end().m_ptr };
                 return backNode->data;
             }
 
@@ -147,7 +150,7 @@
              *
              * @param data The value that will become the new head
              */
-            void PushFront(const T data)
+            void push_front(const T data)
             {
                 std::lock_guard<std::mutex> lock(head_->mtx);
                 head_->next = new Node<T>(data);
@@ -158,9 +161,9 @@
              *
              * @param data The value that will become the new tail
              */
-            void PushBack(const T data)
+            void push_back(const T data)
             {
-                Node<T>* backNode { GetTailPointer() };
+                Node<T>* backNode { end().m_ptr };
 
                 std::lock_guard<std::mutex> lock(backNode->mtx);
                 backNode->next = new Node<T>(data);
@@ -172,7 +175,7 @@
               * @param it Iterator of the Node to be removed
               * @return Iterator of the next Node in the linked list
               */
-             Iterator Erase( const Iterator& it)
+             Iterator erase( const Iterator& it)
              {
                  // get the pointer of the target
                  Node<T>* target { it.m_ptr };
@@ -209,7 +212,7 @@
                  return Iterator(next);
              }
 
-             void Clear()
+             void clear()
              {
                  Node<T>* cur { head_->next };
 
@@ -223,22 +226,6 @@
 
                  head_ = nullptr;
                  size_.store(0, std::memory_order_relaxed);
-            }
-
-        private:
-            /**
-             *
-             * @return Pointer to the tail node
-             */
-            Node<T>* GetTailPointer() const
-            {
-                Node<T>* cur { head_ };
-                while (cur->next)
-                {
-                    cur = cur->next;
-                }
-
-                return cur;
             }
         };
     }
