@@ -201,6 +201,7 @@
                      if (!prev) { return end(); }
 
                      // update prev->next to skip over target
+                     std::lock_guard<std::mutex> lock(prev->mtx);
                      prev->next = target->next;
                  }
 
