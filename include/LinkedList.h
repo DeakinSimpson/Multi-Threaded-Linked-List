@@ -2,6 +2,11 @@
     // Created by deakin on 9/22/26.
     //
 
+/* Resources:
+ * - Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue
+ *   Algorithms* - Michael & Scott
+ */
+
     #pragma once
 
     namespace MTList
@@ -9,12 +14,14 @@
         template <typename T>
         struct Node
         {
-            T data;
-            Node* next;
+            std::unique_ptr<T> data;
+            Node* next { nullptr };
+            std::mutex mtx;
 
-            explicit Node(const T data) : data { data }, next { nullptr } {  }
-            explicit Node(const T data, Node* next)
-                : data { data }
+            Node() = default;
+
+            explicit Node(const T data, Node* next = nullptr)
+                : data { std::make_unique<T>(std::move(data)) }
                 , next { next }
             {  }
         };
@@ -167,62 +174,62 @@
                 ++size_;
             }
 
-            /**
-             *
-             * @param it Iterator of the Node to be removed
-             * @return Iterator of the next Node in the linked list
-             */
-            Iterator Erase( const Iterator& it)
-            {
-                // get the pointer of the target
-                Node<T>* target { it.m_ptr };
+             /**
+              *
+              * @param it Iterator of the Node to be removed
+              * @return Iterator of the next Node in the linked list
+              */
+             Iterator Erase( const Iterator& it)
+             {
+                 // get the pointer of the target
+                 Node<T>* target { it.m_ptr };
 
-                // return nullptr (end) if invalid iterator
-                if (!target) { return end(); }
+                 // return nullptr (end) if invalid iterator
+                 if (!target) { return end(); }
 
-                // if head skip prev updating as there is no prev
-                if (target == head_)
-                {
-                    head_ = head_->next;
-                } else
-                {
-                    Node<T>* prev { head_ };
+                 // if head skip prev updating as there is no prev
+                 if (target == head_)
+                 {
+                     head_ = head_->next;
+                 } else
+                 {
+                     Node<T>* prev { head_ };
 
-                    // prev is not at end and != to target, loop until at target
-                    while (prev && prev->next != target)
-                    {
-                        prev = prev->next;
-                    }
+                     // prev is not at end and != to target, loop until at target
+                     while (prev && prev->next != target)
+                     {
+                         prev = prev->next;
+                     }
 
-                    // if prev == nullptr then not found
-                    if (!prev) { return end(); }
+                     // if prev == nullptr then not found
+                     if (!prev) { return end(); }
 
-                    // update prev->next to skip over target
-                    prev->next = target->next;
-                }
+                     // update prev->next to skip over target
+                     prev->next = target->next;
+                 }
 
-                // get next valuie and delete the node
-                Node<T>* next { target->next };
-                delete target;
-                --size_;
+                 // get next valuie and delete the node
+                 Node<T>* next { target->next };
+                 delete target;
+                 --size_;
 
-                return Iterator(next);
-            }
+                 return Iterator(next);
+             }
 
-            void Clear()
-            {
-                Node<T>* cur { head_ };
+             void Clear()
+             {
+                 Node<T>* cur { head_ };
 
 
-                while (cur)
-                {
-                    auto next { cur->next };
-                    delete cur;
-                    cur = next;
-                }
+                 while (cur)
+                 {
+                     auto next { cur->next };
+                     delete cur;
+                     cur = next;
+                 }
 
-                head_ = nullptr;
-                size_ = 0;
+                 head_ = nullptr;
+                 size_ = 0;
             }
 
         private:
@@ -240,6 +247,5 @@
 
                 return cur;
             }
-
         };
     }
