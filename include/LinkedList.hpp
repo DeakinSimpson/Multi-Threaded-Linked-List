@@ -7,247 +7,248 @@
  *   Algorithms* - Michael & Scott
  */
 
-    #pragma once
+#pragma once
+#include <memory>
+
 
     namespace ThreadSafeList
+{
+    template <typename T>
+    struct Node
     {
-        template <typename T>
-        struct Node
+        std::unique_ptr<T> data;
+        Node* next { nullptr };
+
+        Node() = default;
+
+        explicit Node(const T data, Node* next = nullptr)
+            : data { std::make_unique<T>(std::move(data)) }
+            , next { next }
+        {  }
+    };
+
+    template <typename T>
+    class ThreadSafeList
+    {
+        Node<T>* head_;
+        std::atomic<size_t> size_ { 0 };
+        std::mutex mtx_;
+
+    public:
+        struct Iterator
         {
-            std::unique_ptr<T> data;
-            Node* next { nullptr };
+            using iterator_category = std::forward_iterator_tag;
+            using difference_type   = std::ptrdiff_t;
+            using value_type        = T;
+            using pointer           = T*;
+            using reference         = T&;
 
-            Node() = default;
+            Iterator(Node<T>* ptr) : m_ptr { ptr } {  }
 
-            explicit Node(const T data, Node* next = nullptr)
-                : data { std::make_unique<T>(std::move(data)) }
-                , next { next }
-            {  }
+            // getting the values a reference is pointing to
+            reference operator*() const { return *m_ptr->data; }
+            pointer operator->() const { return &m_ptr->data; }
+
+            // Prefix increment (gets next node)
+            Iterator& operator++()
+            {
+                m_ptr = m_ptr->next;
+                return *this;
+            }
+
+            // Postfix increment
+            Iterator operator++(int)
+            {
+                Iterator tmp = *this;
+                ++(*this);
+                return tmp;
+            }
+
+            friend bool operator== (const Iterator& a, const Iterator& b)
+            {
+                return a.m_ptr == b.m_ptr;
+            }
+
+            friend bool operator!= (const Iterator& a, const Iterator& b)
+            {
+                return a.m_ptr != b.m_ptr;
+            }
+
+        private:
+            Node<T>* m_ptr;
+            friend class ThreadSafeList;    // allows linked list to read m_ptr
         };
 
-        template <typename T>
-        class ThreadSafeList
+        /**
+         *
+         * @return Iterator of the front of the list (the head)
+         */
+        Iterator begin() const
         {
-            Node<T>* head_;
-            std::atomic<size_t> size_ { 0 };
-            std::mutex mtx_;
+            return Iterator(head_->next);
+        }
 
-        public:
-            struct Iterator
+        /**
+         *
+         * @return Iterator of the end of the list, out of bounds (tail)
+         */
+        Iterator end() const
+        {
+            return Iterator(nullptr);
+        }
+
+        ThreadSafeList() : head_ { new Node<T>() }, size_ { 0 } {  }
+
+        ThreadSafeList(std::initializer_list<T> lst)
+            : head_ { new Node<T>() }, size_ { 0 }
+        {
+            for (const auto& l : lst)
             {
-                using iterator_category = std::forward_iterator_tag;
-                using difference_type   = std::ptrdiff_t;
-                using value_type        = T;
-                using pointer           = T*;
-                using reference         = T&;
+                push_back(l);
+            }
+        }
 
-                Iterator(Node<T>* ptr) : m_ptr { ptr } {  }
+        ~ThreadSafeList()
+        {
+            clear();
+            delete head_;
+        }
 
-                // getting the values a reference is pointing to
-                reference operator*() const { return *m_ptr->data; }
-                pointer operator->() const { return &m_ptr->data; }
+        ThreadSafeList(const ThreadSafeList&) = delete;
+        ThreadSafeList& operator=(const ThreadSafeList&) = delete;
 
-                // Prefix increment (gets next node)
-                Iterator& operator++()
-                {
-                    m_ptr = m_ptr->next;
-                    return *this;
-                }
+        /**
+         *
+         * @return Number of elements in the list
+         */
+        size_t size() const
+        {
+            return size_.load(std::memory_order_relaxed);
+        }
 
-                // Postfix increment
-                Iterator operator++(int)
-                {
-                    Iterator tmp = *this;
-                    ++(*this);
-                    return tmp;
-                }
+        /**
+         *
+         * @return Number of elements in the list O(n)
+         */
+        size_t size_nt() const
+        {
+            auto cur { head_->next };
+            size_t size {};
 
-                friend bool operator== (const Iterator& a, const Iterator& b)
-                {
-                    return a.m_ptr == b.m_ptr;
-                }
-
-                friend bool operator!= (const Iterator& a, const Iterator& b)
-                {
-                    return a.m_ptr != b.m_ptr;
-                }
-
-            private:
-                Node<T>* m_ptr;
-                friend class ThreadSafeList;    // allows linked list to read m_ptr
-            };
-
-            /**
-             *
-             * @return Iterator of the front of the list (the head)
-             */
-            Iterator begin() const
+            while (cur)
             {
-                return Iterator(head_->next);
+                cur = cur->next;
+                ++size;
             }
 
-            /**
-             *
-             * @return Iterator of the end of the list, out of bounds (tail)
-             */
-            Iterator end() const
-            {
-                return Iterator(nullptr);
-            }
+            return size;
+        }
 
-            ThreadSafeList() : head_ { new Node<T>() }, size_ { 0 } {  }
+        /**
+         *
+         * @return True if list is empty, false otherwise
+         */
+        bool empty() const
+        {
+            return size_.load(std::memory_order_relaxed) == 0;
+        }
 
-            ThreadSafeList(std::initializer_list<T> lst)
-                : head_ { new Node<T>() }, size_ { 0 }
-            {
-                for (const auto& l : lst)
-                {
-                    push_back(l);
-                }
-            }
+        /**
+         *
+         * @return The head of the list
+         */
+        T front() const { return *head_->next->data; }
 
-            ~ThreadSafeList()
-            {
-                clear();
-                delete head_;
-            }
+        /**
+         *
+         * @return The tail of the list
+         */
+        T back() const
+        {
+            auto cur { head_ };
+            while (cur->next) cur = cur->next;
+            return *cur->data;
+        }
 
-            ThreadSafeList(const ThreadSafeList&) = delete;
-            ThreadSafeList& operator=(const ThreadSafeList&) = delete;
+        /**
+         *
+         * @param data The value that will become the new head
+         */
+        void push_front(const T data)
+        {
+            std::lock_guard<std::mutex> lock(mtx_);
+            head_->next = new Node<T>(std::move(data), head_->next);
+            size_.fetch_add(1, std::memory_order_relaxed);
+        }
 
-            /**
-             *
-             * @return Number of elements in the list
-             */
-            size_t size() const
-            {
-                return size_.load(std::memory_order_relaxed);
-            }
+        /**
+         *
+         * @param data The value that will become the new tail
+         */
+        void push_back(const T data)
+        {
+            std::lock_guard<std::mutex> lock(mtx_);
+            Node<T>* cur { head_ };
+            while (cur->next) cur = cur->next;
+            cur->next = new Node<T>(std::move(data));
+            size_.fetch_add(1, std::memory_order_relaxed);
+        }
 
-            /**
-             *
-             * @return Number of elements in the list O(n)
-             */
-            size_t size_nt() const
-            {
-                auto cur { head_->next };
-                size_t size {};
+         /**
+          *
+          * @param it Iterator of the Node to be removed
+          * @return Iterator of the next Node in the linked list
+          */
+         Iterator erase(const Iterator& it)
+         {
+             // get the pointer of the target
+             Node<T>* target { it.m_ptr };
 
-                while (cur)
-                {
-                    cur = cur->next;
-                    ++size;
-                }
+             // return nullptr (end) if invalid iterator
+             if (!target) { return end(); }
 
-                return size;
-            }
-
-            /**
-             *
-             * @return True if list is empty, false otherwise
-             */
-            bool empty() const
-            {
-                return size_.load(std::memory_order_relaxed) == 0;
-            }
-
-            /**
-             *
-             * @return The head of the list
-             */
-            T front() const { return *head_->next->data; }
-
-            /**
-             *
-             * @return The tail of the list
-             */
-            T back() const
-            {
-                auto cur { head_ };
-                while (cur->next) cur = cur->next;
-                return *cur->data;
-            }
-
-            /**
-             *
-             * @param data The value that will become the new head
-             */
-            void push_front(const T data)
-            {
-                std::lock_guard<std::mutex> lock(mtx_);
-                head_->next = new Node<T>(std::move(data), head_->next);
-                size_.fetch_add(1, std::memory_order_relaxed);
-            }
-
-            /**
-             *
-             * @param data The value that will become the new tail
-             */
-            void push_back(const T data)
-            {
-                std::lock_guard<std::mutex> lock(mtx_);
-                Node<T>* cur { head_ };
-                while (cur->next) cur = cur->next;
-                cur->next = new Node<T>(std::move(data));
-                size_.fetch_add(1, std::memory_order_relaxed);
-            }
-
-             /**
-              *
-              * @param it Iterator of the Node to be removed
-              * @return Iterator of the next Node in the linked list
-              */
-             Iterator erase(const Iterator& it)
+             // if head skip prev updating as there is no prev
+             if (target == head_)
              {
-                 // get the pointer of the target
-                 Node<T>* target { it.m_ptr };
+                 head_ = head_->next;
+             } else
+             {
+                 Node<T>* prev { head_ };
 
-                 // return nullptr (end) if invalid iterator
-                 if (!target) { return end(); }
-
-                 // if head skip prev updating as there is no prev
-                 if (target == head_)
+                 // prev is not at end and != to target, loop until at target
+                 while (prev && prev->next != target)
                  {
-                     head_ = head_->next;
-                 } else
-                 {
-                     Node<T>* prev { head_ };
-
-                     // prev is not at end and != to target, loop until at target
-                     while (prev && prev->next != target)
-                     {
-                         prev = prev->next;
-                     }
-
-                     // if prev == nullptr then not found
-                     if (!prev) { return end(); }
-
-                     // update prev->next to skip over target
-                     prev->next = target->next;
+                     prev = prev->next;
                  }
 
-                 // get next valuie and delete the node
-                 Node<T>* next { target->next };
-                 delete target;
-                 size_.fetch_sub(1, std::memory_order_relaxed);
+                 // if prev == nullptr then not found
+                 if (!prev) { return end(); }
 
-                 return Iterator(next);
+                 // update prev->next to skip over target
+                 prev->next = target->next;
              }
 
-             void clear()
+             // get next valuie and delete the node
+             Node<T>* next { target->next };
+             delete target;
+             size_.fetch_sub(1, std::memory_order_relaxed);
+
+             return Iterator(next);
+         }
+
+         void clear()
+         {
+             Node<T>* cur { head_->next };
+
+             while (cur)
              {
-                 Node<T>* cur { head_->next };
+                 auto next { cur->next };
+                 delete cur;
+                 cur = next;
+             }
 
-
-                 while (cur)
-                 {
-                     auto next { cur->next };
-                     delete cur;
-                     cur = next;
-                 }
-
-                 head_->next = nullptr;
-                 size_.store(0, std::memory_order_relaxed);
-            }
-        };
-    }
+             head_->next = nullptr;
+             size_.store(0, std::memory_order_relaxed);
+        }
+    };
+}

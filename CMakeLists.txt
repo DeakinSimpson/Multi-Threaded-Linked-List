@@ -12,10 +12,26 @@ target_include_directories(Multi_Threaded_Linked_List PRIVATE include)
 include(FetchContent)
 
 FetchContent_Declare(
+        googlebenchmark
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG v1.9.1
+)
+
+FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip)
 
-FetchContent_MakeAvailable(googletest)
+# ignore googles own testing
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(googlebenchmark googletest)
+
+add_executable(bench
+        benchmarks/benchmark.cpp
+)
+
+target_include_directories(bench PRIVATE include)
+target_link_libraries(bench PRIVATE benchmark::benchmark)
 
 # --- add google testing ---
 add_executable(tslinkedlist_tests

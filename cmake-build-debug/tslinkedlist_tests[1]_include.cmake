@@ -1,5 +1,0 @@
-if(EXISTS "/home/deakin/Documents/projects/Multi-Threaded-Linked-List/cmake-build-debug/tslinkedlist_tests[1]_tests.cmake")
-  include("/home/deakin/Documents/projects/Multi-Threaded-Linked-List/cmake-build-debug/tslinkedlist_tests[1]_tests.cmake")
-else()
-  add_test(tslinkedlist_tests_NOT_BUILT tslinkedlist_tests_NOT_BUILT)
-endif()
