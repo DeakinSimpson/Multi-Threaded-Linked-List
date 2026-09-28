@@ -64,6 +64,14 @@ TEST(empty, return_true_if_empty)
     EXPECT_EQ(tsll.empty(), true);
 }
 
+TEST(size, return_zero_when_empty_list)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll {};
+
+    EXPECT_EQ(tsll.size(), 0);
+}
+
+
 TEST(empty, return_false_if_contains_data)
 {
     ThreadSafeList::ThreadSafeList<int> tsll {};
