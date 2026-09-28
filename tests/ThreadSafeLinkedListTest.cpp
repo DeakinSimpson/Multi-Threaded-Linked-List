@@ -56,19 +56,25 @@ TEST(initializer_list, create_list_with_initialisation_list)
     EXPECT_EQ(testVec[3], 4);
 }
 
+TEST(size, return_zero_when_empty_list)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll {};
+
+    EXPECT_EQ(tsll.size(), 0);
+}
+
+TEST(size, return_correct_size)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    EXPECT_EQ(tsll.size(), 4);
+}
 
 TEST(empty, return_true_if_empty)
 {
     ThreadSafeList::ThreadSafeList<int> tsll {};
 
     EXPECT_EQ(tsll.empty(), true);
-}
-
-TEST(size, return_zero_when_empty_list)
-{
-    ThreadSafeList::ThreadSafeList<int> tsll {};
-
-    EXPECT_EQ(tsll.size(), 0);
 }
 
 
@@ -80,4 +86,18 @@ TEST(empty, return_false_if_contains_data)
     tsll.push_front(2);
 
     EXPECT_EQ(tsll.empty(), false);
+}
+
+TEST(front, return_the_front_object)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    EXPECT_EQ(tsll.front(), 1);
+}
+
+TEST(back, return_back_object)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    EXPECT_EQ(tsll.back(), 4);
 }

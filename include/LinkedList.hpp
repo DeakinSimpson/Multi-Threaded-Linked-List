@@ -142,12 +142,14 @@
                 return size;
             }
 
-
             /**
              *
              * @return True if list is empty, false otherwise
              */
-            bool empty() const { return size_.load(std::memory_order_relaxed) == 0; }
+            bool empty() const
+            {
+                return size_.load(std::memory_order_relaxed) == 0;
+            }
 
             /**
              *
