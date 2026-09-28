@@ -51,7 +51,7 @@ int main()
     t1.join();
     t2.join();
 
-    std::cout << mtList.size();
-
+    std::cout << mtList.size() << std::endl;
+    std::cout << mtList.size_nt();
     return 0;
 }

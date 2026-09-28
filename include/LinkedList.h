@@ -16,7 +16,6 @@
         {
             std::unique_ptr<T> data;
             Node* next { nullptr };
-            std::mutex mtx;
 
             Node() = default;
 
@@ -31,6 +30,7 @@
         {
             Node<T>* head_;
             std::atomic<size_t> size_ { 0 };
+            std::mutex mtx_;
 
         public:
             struct Iterator
@@ -126,9 +126,28 @@
 
             /**
              *
+             * @return Number of elements in the list O(n)
+             */
+            size_t size_nt() const
+            {
+                auto cur { head_->next };
+                size_t size {};
+
+                while (cur)
+                {
+                    cur = cur->next;
+                    ++size;
+                }
+
+                return size;
+            }
+
+
+            /**
+             *
              * @return True if list is empty, false otherwise
              */
-            bool Empty() const { return !head_; }
+            bool empty() const { return size_.load(std::memory_order_relaxed); }
 
             /**
              *
@@ -152,8 +171,8 @@
              */
             void push_front(const T data)
             {
-                std::lock_guard<std::mutex> lock(head_->mtx);
-                head_->next = new Node<T>(data);
+                std::lock_guard<std::mutex> lock(mtx_);
+                head_->next = new Node<T>(std::move(data), head_->next);
                 size_.fetch_add(1, std::memory_order_relaxed);
             }
 
@@ -163,10 +182,10 @@
              */
             void push_back(const T data)
             {
-                Node<T>* backNode { end().m_ptr };
-
-                std::lock_guard<std::mutex> lock(backNode->mtx);
-                backNode->next = new Node<T>(data);
+                std::lock_guard<std::mutex> lock(mtx_);
+                Node<T>* cur { head_ };
+                while (cur->next) cur = cur->next;
+                cur->next = new Node<T>(data);
                 size_.fetch_add(1, std::memory_order_relaxed);
             }
 
@@ -201,7 +220,6 @@
                      if (!prev) { return end(); }
 
                      // update prev->next to skip over target
-                     std::lock_guard<std::mutex> lock(prev->mtx);
                      prev->next = target->next;
                  }
 
