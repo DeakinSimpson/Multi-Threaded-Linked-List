@@ -4,7 +4,7 @@
 #include <random>
 #include <thread>
 
-#include "LinkedList.h"
+#include "LinkedList.hpp"
 
 enum class PushType
 {
@@ -48,10 +48,19 @@ int main()
     std::thread t1(AddNumbersToList, std::ref(mtList), 1, 10000, PushType::Front);
     std::thread t2(AddNumbersToList, std::ref(mtList), 0, 10000, PushType::Front);
 
+
     t1.join();
     t2.join();
 
     std::cout << mtList.size() << std::endl;
-    std::cout << mtList.size_nt();
+    std::cout << mtList.size_nt() << std::endl;;
+
+    std::cout << mtList.front() << std::endl;
+    std::cout << mtList.back() << std::endl;
+
+    for (auto m : mtList)
+    {
+        std::cout << m << std::endl;
+    }
     return 0;
 }

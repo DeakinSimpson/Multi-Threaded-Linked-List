@@ -44,7 +44,7 @@
                 Iterator(Node<T>* ptr) : m_ptr { ptr } {  }
 
                 // getting the values a reference is pointing to
-                reference operator*() const { return m_ptr->data; }
+                reference operator*() const { return *m_ptr->data; }
                 pointer operator->() const { return &m_ptr->data; }
 
                 // Prefix increment (gets next node)
@@ -83,7 +83,7 @@
              */
             Iterator begin() const
             {
-                return Iterator(head_);
+                return Iterator(head_->next);
             }
 
             /**
@@ -147,13 +147,13 @@
              *
              * @return True if list is empty, false otherwise
              */
-            bool empty() const { return size_.load(std::memory_order_relaxed); }
+            bool empty() const { return size_.load(std::memory_order_relaxed) == 0; }
 
             /**
              *
              * @return The head of the list
              */
-            T front() const { return head_->data; }
+            T front() const { return *head_->next->data; }
 
             /**
              *
@@ -161,8 +161,9 @@
              */
             T back() const
             {
-                Node<T>* backNode { end().m_ptr };
-                return backNode->data;
+                auto cur { head_ };
+                while (cur->next) cur = cur->next;
+                return *cur->data;
             }
 
             /**
@@ -194,7 +195,7 @@
               * @param it Iterator of the Node to be removed
               * @return Iterator of the next Node in the linked list
               */
-             Iterator erase( const Iterator& it)
+             Iterator erase(const Iterator& it)
              {
                  // get the pointer of the target
                  Node<T>* target { it.m_ptr };
@@ -243,7 +244,7 @@
                      cur = next;
                  }
 
-                 head_ = nullptr;
+                 head_->next = nullptr;
                  size_.store(0, std::memory_order_relaxed);
             }
         };
