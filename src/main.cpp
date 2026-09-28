@@ -45,8 +45,8 @@ int main()
 {
     ThreadSafeList::ThreadSafeList<int> mtList;
 
-    std::thread t1(AddNumbersToList, std::ref(mtList), 1, 10000, PushType::Front);
-    std::thread t2(AddNumbersToList, std::ref(mtList), 0, 10000, PushType::Front);
+    std::thread t1(AddNumbersToList, std::ref(mtList), 1, 10000000, PushType::Front);
+    std::thread t2(AddNumbersToList, std::ref(mtList), 0, 10000000, PushType::Front);
 
 
     t1.join();
@@ -58,9 +58,9 @@ int main()
     std::cout << mtList.front() << std::endl;
     std::cout << mtList.back() << std::endl;
 
-    for (auto m : mtList)
-    {
-        std::cout << m << std::endl;
-    }
+    // for (auto m : mtList)
+    // {
+    //     std::cout << m << std::endl;
+    // }
     return 0;
 }

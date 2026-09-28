@@ -1,5 +1,5 @@
 {
-  "tests": 11,
+  "tests": 14,
   "name": "AllTests",
   "testsuites": [
     {
@@ -96,6 +96,27 @@
           "name": "return_back_object",
           "file": "\/home\/deakin\/Documents\/projects\/Multi-Threaded-Linked-List\/tests\/ThreadSafeLinkedListTest.cpp",
           "line": 98
+        }
+      ]
+    },
+    {
+      "name": "push_front",
+      "tests": 3,
+      "testsuite": [
+        {
+          "name": "push_to_empty_list_success",
+          "file": "\/home\/deakin\/Documents\/projects\/Multi-Threaded-Linked-List\/tests\/ThreadSafeLinkedListTest.cpp",
+          "line": 105
+        },
+        {
+          "name": "push_to_list_with_elements_success",
+          "file": "\/home\/deakin\/Documents\/projects\/Multi-Threaded-Linked-List\/tests\/ThreadSafeLinkedListTest.cpp",
+          "line": 114
+        },
+        {
+          "name": "multithreaded_pushing_returns_correct_size",
+          "file": "\/home\/deakin\/Documents\/projects\/Multi-Threaded-Linked-List\/tests\/ThreadSafeLinkedListTest.cpp",
+          "line": 123
         }
       ]
     }

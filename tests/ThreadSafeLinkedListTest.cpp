@@ -101,3 +101,44 @@ TEST(back, return_back_object)
 
     EXPECT_EQ(tsll.back(), 4);
 }
+
+TEST(push_front, push_to_empty_list_success)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll {};
+
+    EXPECT_NO_THROW({
+        tsll.push_front(0);
+    });
+}
+
+TEST(push_front, push_to_list_with_elements_success)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    EXPECT_NO_THROW({
+        tsll.push_front(0);
+    });
+}
+
+TEST(push_front, multithreaded_pushing_returns_correct_size)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll {};
+
+    auto push_func = [](
+            ThreadSafeList::ThreadSafeList<int>& list,
+            int count,
+            int num){
+        for (int i {}; i < count; ++i)
+        {
+            list.push_front(num);
+        }
+    };
+
+    std::thread t1(push_func, std::ref(tsll), 10000, 0);
+    std::thread t2(push_func, std::ref(tsll), 10000, 1);
+
+    t2.join();
+    t1.join();
+
+    EXPECT_EQ(tsll.size(), 20000);
+}
