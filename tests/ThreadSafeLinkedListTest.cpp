@@ -198,3 +198,28 @@ TEST(erase, erase_works_with_valid_iterator)
 
     EXPECT_EQ(v, (std::vector<int>{ 1, 2, 4 }));
 }
+
+TEST(clear, returns_size_zero_afer_clear)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    tsll.clear();
+
+    EXPECT_EQ(tsll.size(), 0);
+}
+
+TEST(clear, returns_sizent_zero_after_clear)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    tsll.clear();
+
+    EXPECT_EQ(tsll.size_nt(), 0);
+}
+
+TEST(clear, clearing_empty_list_no_exception)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll {};
+
+    EXPECT_NO_THROW(tsll.clear());
+}
