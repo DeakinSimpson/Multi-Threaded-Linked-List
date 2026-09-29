@@ -183,3 +183,18 @@ TEST(push_back, multithreaded_pushing_returns_correct_size)
 
     EXPECT_EQ(tsll.size(), 20000);
 }
+
+TEST(erase, erase_works_with_valid_iterator)
+{
+    ThreadSafeList::ThreadSafeList<int> tsll { 1, 2, 3, 4 };
+
+    auto it { tsll.begin() };
+
+    std::advance(it, 2);
+
+    tsll.erase(it);
+
+    std::vector<int> v(tsll.begin(), tsll.end());
+
+    EXPECT_EQ(v, (std::vector<int>{ 1, 2, 4 }));
+}
