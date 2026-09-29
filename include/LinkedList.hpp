@@ -203,9 +203,10 @@
         {
             // get the pointer of the target
             Node<T>* target { it.m_ptr };
-
-            // return nullptr (end) if invalid iterator
-            if (!target) { return end(); }
+            if (!target)
+            {
+                return end();
+            }
 
             Node<T>* prev { head_ };
 
@@ -224,12 +225,11 @@
             // update prev->next to skip over target
             prev->next = target->next;
 
-            // get next value and delete the node
-            Node<T>* next { target->next };
             delete target;
+
             size_.fetch_sub(1, std::memory_order_relaxed);
 
-            return Iterator(next);
+            return Iterator(prev->next);
         }
 
          void clear()
