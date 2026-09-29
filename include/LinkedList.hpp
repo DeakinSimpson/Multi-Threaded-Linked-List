@@ -1,5 +1,5 @@
     //
-    // Created by deakin on 9/22/26.
+    // Created by DeakinSimpson on 9/22/26.
     //
 
 /* Resources:
@@ -121,16 +121,16 @@
          *
          * @return Number of elements in the list
          */
-        size_t size() const
+        [[nodiscard]] size_t size() const
         {
             return size_.load(std::memory_order_relaxed);
         }
 
         /**
-         *
+         * NOT THREAD SAFE, USED ONLY FOR DEBUGGING
          * @return Number of elements in the list O(n)
          */
-        size_t size_nt() const
+        [[nodiscard]] size_t size_nt() const
         {
             auto cur { head_->next };
             size_t size {};
@@ -148,7 +148,7 @@
          *
          * @return True if list is empty, false otherwise
          */
-        bool empty() const
+        [[nodiscard]] bool empty() const
         {
             return size_.load(std::memory_order_relaxed) == 0;
         }
@@ -157,7 +157,10 @@
          *
          * @return The head of the list
          */
-        T front() const { return *head_->next->data; }
+        T front() const
+        {
+            return *head_->next->data;
+        }
 
         /**
          *
@@ -165,6 +168,7 @@
          */
         T back() const
         {
+            std::lock_guard<std::mutex> lock(mtx_);
             auto cur { head_ };
             while (cur->next) cur = cur->next;
             return *cur->data;
@@ -201,6 +205,7 @@
         */
         Iterator erase(const Iterator& it)
         {
+            std::lock_guard<std::mutex> lock(mtx_);
             // get the pointer of the target
             Node<T>* target { it.m_ptr };
             if (!target)
@@ -224,7 +229,6 @@
 
             // update prev->next to skip over target
             prev->next = target->next;
-
             delete target;
 
             size_.fetch_sub(1, std::memory_order_relaxed);
@@ -232,19 +236,20 @@
             return Iterator(prev->next);
         }
 
-         void clear()
-         {
-             Node<T>* cur { head_->next };
+        void clear()
+        {
+            std::lock_guard<std::mutex> lock(mtx_);
+            Node<T>* cur { head_->next };
 
-             while (cur)
-             {
-                 auto next { cur->next };
-                 delete cur;
-                 cur = next;
-             }
+            while (cur)
+            {
+                auto next { cur->next };
+                delete cur;
+                cur = next;
+            }
 
-             head_->next = nullptr;
-             size_.store(0, std::memory_order_relaxed);
-        }
+                head_->next = nullptr;
+                size_.store(0, std::memory_order_relaxed);
+            }
     };
 }
